@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
-
+import { useDispatch, useSelector } from 'react-redux'
+import { register } from '../../features/auth/authSlice'
+import { useNavigate } from 'react-router-dom'
 
 const Register = () => {
 
@@ -14,6 +16,10 @@ const Register = () => {
 
     const { first_name, last_name, email, password, re_password } = formData
 
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+
+    const { user, isLoading, isError, isSuccess, message } = useSelector((state) => state.auth)
     const handleChange = (e) => {
         setFormData((prev) => ({
             ...prev,
@@ -26,10 +32,32 @@ const Register = () => {
     const handleSubmit = (e) => {
         e.preventDefault()
 
+
         if (password !== re_password) {
             toast.error("Passwords do not match")
+        } else {
+            const userData = {
+                first_name,
+                last_name,
+                email,
+                password,
+                re_password
+            }
+            dispatch(register(userData))
         }
     }
+
+    useEffect(() => {
+        if (isError) {
+            toast.error(message)
+        }
+
+        if (isSuccess || user) {
+            navigate("/")
+            toast.success("An activation email has been sent to you. Please check your email!")
+        }
+
+    })
 
     return (
       <>
