@@ -12,20 +12,22 @@ import Login from './pages/auth/Login';
 import ResetPassword from './pages/auth/ResetPassword';
 import Activate from './pages/auth/Activate';
 import PageNotFound from './pages/auth/PageNotFound';
+import ResetPasswordConfirm from './pages/auth/ResetPasswordConfirm';
+
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Provider store={store}>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/signup" element={<Register />} />
-        <Route path="/acount-activation" element={<Activate />} />
+        <Route path="/activate/:uid/:token" element={<Activate />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/resetpassword" element={<ResetPassword />} />
-
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/password/reset/confirm/:uid/:token" element={<ResetPasswordConfirm />} />
+      
         <Route path="*" element={<PageNotFound />} />
-        {/*Da dobawq ako nqkoj put e gre[en da wodi do glawnata stranica*/}
       </Routes>
       <ToastContainer/>
     </BrowserRouter>

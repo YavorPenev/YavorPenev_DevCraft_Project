@@ -142,13 +142,13 @@ AUTH_USER_MODEL = 'users.User'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+          'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
 
 SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": (
-        "Wearer",
+        "Bearer",
         "JWT"),
     "ACCESS-TOKEN_LIFETIME":timedelta(minutes=120),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=60),
@@ -172,13 +172,14 @@ DJOSER = {
     'SERIALIZERS': {
         'user_create': 'users.serializers.CreateUserSerializer',
         'user': "users.serializers.CreateUserSerializer",
-        'user_delete': "djoser.serializers.UserDeleteSerializer",      
+        'user_delete': "djoser.serializers.UserDeleteSerializer", 
+        'current_user': 'users.serializers.CustomUserSerializer',   
     },
 }
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = env("EMAIL_HOST")
-EMAIL_USE_TLS = True
+EMAIL_USE_TLS = env("EMAIL_USE_TLS")
 EMAIL_PORT = env("EMAIL_PORT")
 EMAIL_HOST_USER = env("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")

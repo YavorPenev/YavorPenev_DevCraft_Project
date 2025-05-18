@@ -11,7 +11,7 @@ class User(AbstractBaseUser,PermissionsMixin):
     is_active = models.BooleanField(default=False)
     date_joined =  models.DateTimeField(auto_now_add=True)
  
-    USERNAME_FIELD = "email" # po kusno da se smeni
+    USERNAME_FIELD = "email" 
     REQUIRED_FIELDS = ["first_name", "last_name"]
 
     objects = CustomUserManager()
@@ -25,4 +25,4 @@ class User(AbstractBaseUser,PermissionsMixin):
     
     @property
     def get_full_name(self):
-        return f"{self.first_name} {self.last_name}"# po kusno da se smeni
+        return f"{self.first_name} {self.last_name}"

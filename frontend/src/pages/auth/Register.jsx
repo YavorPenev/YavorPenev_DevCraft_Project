@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import { useDispatch, useSelector } from 'react-redux'
-import { register } from '../../features/auth/authSlice'
+import { register, reset } from '../../features/auth/authSlice'
 import { useNavigate } from 'react-router-dom'
+import Loading from '../../components/Loading'
 
 const Register = () => {
 
@@ -20,6 +21,7 @@ const Register = () => {
     const navigate = useNavigate()
 
     const { user, isLoading, isError, isSuccess, message } = useSelector((state) => state.auth)
+
     const handleChange = (e) => {
         setFormData((prev) => ({
             ...prev,
@@ -53,15 +55,17 @@ const Register = () => {
         }
 
         if (isSuccess || user) {
-            navigate("/")
+            navigate("/home")
             toast.success("An activation email has been sent to you. Please check your email!")
         }
-
-    })
+        dispatch(reset())
+    }, [user, isError, isSuccess, navigate, dispatch])
 
     return (
       <>
         <form >
+            {isLoading && <Loading/>}
+
                     <input type="text"
                         placeholder="First Name"
                         name="first_name"
