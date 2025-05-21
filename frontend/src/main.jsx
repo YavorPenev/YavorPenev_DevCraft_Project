@@ -7,6 +7,7 @@ import {Provider} from 'react-redux';
 import {store} from './app/store';
 
 import Home from './pages/home';
+import Ideas from './pages/ideas/ideas'
 import Register from './pages/auth/Register';
 import Login from './pages/auth/Login';
 import ResetPassword from './pages/auth/ResetPassword';
@@ -21,6 +22,7 @@ createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <Routes>
         <Route path="/home" element={<Home />} />
+        <Route path="/ideas" element={<Ideas />} />
         <Route path="/signup" element={<Register />} />
         <Route path="/activate/:uid/:token" element={<Activate />} />
         <Route path="/login" element={<Login />} />

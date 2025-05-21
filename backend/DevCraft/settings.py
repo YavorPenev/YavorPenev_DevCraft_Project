@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'djoser',
     'rest_framework_simplejwt',
     'users',
+    'ideas',
 ]
 
 MIDDLEWARE = [
