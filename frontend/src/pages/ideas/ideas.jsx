@@ -4,6 +4,8 @@ import Header from '../../components/header'
 import Loading from '../../components/Loading'
 import { toast } from 'react-toastify'
 
+const API = "http://127.0.0.1:8000/api/v1"
+
 const Ideas = () => {
     const { user } = useSelector((state) => state.auth)
     const [ideas, setIdeas] = useState([])
@@ -18,7 +20,7 @@ const Ideas = () => {
         setError('')
         setLoading(true)
         try {
-            let url = `http://127.0.0.1:8000/api/v1/ideas/`
+            let url = `${API}/ideas/`
             if (searchTerm) url += `?search=${encodeURIComponent(searchTerm)}`
             const res = await fetch(url, {
                 headers: {
@@ -49,7 +51,7 @@ const Ideas = () => {
         e.preventDefault()
         setError('')
         try {
-            const res = await fetch('http://127.0.0.1:8000/api/v1/ideas/', {
+            const res = await fetch(`${API}/ideas/`, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${user.access}`,
@@ -71,7 +73,7 @@ const Ideas = () => {
         const confirmDelete = window.confirm('Are you sure you want to delete this idea?')
         if (!confirmDelete) return
         try {
-            const res = await fetch(`http://127.0.0.1:8000/api/v1/ideas/${id}/`, {
+            const res = await fetch(`${API}/ideas/${id}/`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${user.access}`,
@@ -97,7 +99,7 @@ const Ideas = () => {
     const handleEditSave = async (id) => {
         setError('')
         try {
-            const res = await fetch(`http://127.0.0.1:8000/api/v1/ideas/${id}/`, {
+            const res = await fetch(`${API}/ideas/${id}/`, {
                 method: 'PATCH',
                 headers: {
                     Authorization: `Bearer ${user.access}`,

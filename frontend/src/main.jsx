@@ -14,6 +14,7 @@ import ResetPassword from './pages/auth/ResetPassword';
 import Activate from './pages/auth/Activate';
 import PageNotFound from './pages/auth/PageNotFound';
 import ResetPasswordConfirm from './pages/auth/ResetPasswordConfirm';
+import UsefulSources from './pages/useful_sources/UsefulSources';
 
 
 createRoot(document.getElementById('root')).render(
@@ -23,6 +24,7 @@ createRoot(document.getElementById('root')).render(
       <Routes>
         <Route path="/home" element={<Home />} />
         <Route path="/ideas" element={<Ideas />} />
+        <Route path="/useful-sources" element={<UsefulSources />} />
         <Route path="/signup" element={<Register />} />
         <Route path="/activate/:uid/:token" element={<Activate />} />
         <Route path="/login" element={<Login />} />
