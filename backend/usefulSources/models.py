@@ -11,8 +11,13 @@ TYPE = (
 
 class Library(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='libraries')
-    name = models.CharField(max_length=200, unique=True)
+    name = models.CharField(max_length=200)
     date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'name'], name="unique_user_name")
+        ]
 
     def __str__(self):
         return self.name

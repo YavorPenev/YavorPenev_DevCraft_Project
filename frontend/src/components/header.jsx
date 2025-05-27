@@ -30,6 +30,8 @@ const Header = () => {
                     <div className="flex items-center space-x-6">
                         <NavLink className="text-base" to="/ideas">Ideas</NavLink>
                         <NavLink className="text-base" to="/useful-sources">Useful Sources </NavLink>
+                        <NavLink className="text-base" to="/code-fragments">Code Fragments </NavLink>
+
                         <NavLink to="/home" onClick={handleLogout} className="text-base">Logout</NavLink>
 
                         <div className="relative group">

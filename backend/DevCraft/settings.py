@@ -54,6 +54,8 @@ INSTALLED_APPS = [
     'users',
     'ideas',
     'usefulSources',
+    'codeFragments',
+
 ]
 
 MIDDLEWARE = [

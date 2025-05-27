@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Library, Sources
 from .serializers import LibrarySerializer, SourcesSerializer
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
@@ -55,7 +56,7 @@ def sources_create(request, library_id):
     try:
         library = Library.objects.get(pk=library_id, user=request.user)
     except Library.DoesNotExist:
-        return Response({'detail': 'Library not found.'}, status=status.HTTP_404_NOT_FOUND)
+        raise ValidationError({"error":"Library not found!!!"})
 
     if request.method == 'GET':
         sources = library.sources.all().order_by('-id')

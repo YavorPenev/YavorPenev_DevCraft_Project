@@ -15,6 +15,7 @@ import Activate from './pages/auth/Activate';
 import PageNotFound from './pages/auth/PageNotFound';
 import ResetPasswordConfirm from './pages/auth/ResetPasswordConfirm';
 import UsefulSources from './pages/useful_sources/UsefulSources';
+import CodeFragments from './pages/code_fragments/codeFragments';
 
 
 createRoot(document.getElementById('root')).render(
@@ -25,6 +26,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/home" element={<Home />} />
         <Route path="/ideas" element={<Ideas />} />
         <Route path="/useful-sources" element={<UsefulSources />} />
+        <Route path="/code-fragments" element={<CodeFragments />} />
         <Route path="/signup" element={<Register />} />
         <Route path="/activate/:uid/:token" element={<Activate />} />
         <Route path="/login" element={<Login />} />
