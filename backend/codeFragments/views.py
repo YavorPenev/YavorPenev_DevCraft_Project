@@ -56,7 +56,7 @@ def fragments_create(request, codeLibrary_id):
         raise ValidationError({"error":"Library not found!!!"} )
 
     if request.method == 'GET':
-        search_query = request.GET.get('search','')
+        search_query = request.GET.get('search','').strip()
         codeFragments = codeLibrary.code_fragments.all()        
         if search_query:
             codeFragments = codeFragments.filter(title__icontains=search_query)

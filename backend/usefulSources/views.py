@@ -11,7 +11,7 @@ from rest_framework.exceptions import ValidationError
 @permission_classes([IsAuthenticated])
 def library_create(request):
     if request.method == 'GET':
-        search_query = request.GET.get('search', '')
+        search_query = request.GET.get('search', '').strip()
         libraries = Library.objects.filter(user = request.user)
         if search_query:
             libraries = libraries.filter(name__icontains=search_query)

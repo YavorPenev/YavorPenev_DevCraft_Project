@@ -10,7 +10,7 @@ from rest_framework.response import Response
 @permission_classes([IsAuthenticated])
 def idea_create(request):
     if request.method == 'GET':
-        search_query = request.GET.get('search', '')
+        search_query = request.GET.get('search', '').strip()
         ideas = Ideas.objects.filter(user=request.user)
         if search_query:
             ideas = ideas.filter(title__icontains=search_query)
