@@ -26,4 +26,5 @@ urlpatterns = [
     path("api/v1/",include('ideas.urls')),
     path("api/v1/",include('usefulSources.urls')),
     path("api/v1/",include('codeFragments.urls')),
+    path("api/v1/", include('projects.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
