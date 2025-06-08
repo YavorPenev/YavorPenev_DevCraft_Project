@@ -9,4 +9,9 @@ urlpatterns = [
     path('todos/<int:pk>/', views.todoChange, name='todo_change'),
     path('projects/<int:project_id>/notes/', views.noteCreate, name='note_list_create'),
     path('notes/<int:pk>/', views.noteChange, name='note_change'),
+    path('technologies/', views.technologyGlobalAdd, name='technology_global_list_create'),
+    path('projects/<int:project_id>/technologies/', views.technologyProjectAdd, name='technology_add_to_project'),
+    path('projects/<int:project_id>/technologies/<int:tech_id>/remove/', views.technologyRemove, name='technology_remove_from_project'),
+    path('projects/<int:project_id>/personaldependencies/', views.personalDependencyCreate, name='personal_dependency_list_create'),
+    path('personaldependencies/<int:pk>/', views.personaldDependencyChange, name='personal_dependency_change'),
 ]

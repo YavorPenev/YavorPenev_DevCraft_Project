@@ -61,6 +61,7 @@ def projectChange(request, pk):
         project.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_user_to_project(request, pk):
@@ -80,6 +81,7 @@ def add_user_to_project(request, pk):
     
     project.shared_with.add(user)
     return Response({'detail': 'User added.'}, status=status.HTTP_200_OK)
+
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
@@ -128,6 +130,7 @@ def todoChange(request, pk):
         todo.delete()
         return Response(status = status.HTTP_204_NO_CONTENT)
     
+
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def noteCreate(request, project_id):
@@ -176,6 +179,7 @@ def noteChange(request, pk):
     elif request.method == 'DELETE':
         note.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
@@ -236,6 +240,7 @@ def technologyRemove(request, project_id, tech_id):
         return Response({'detail': 'Only the owner can delete technologies!!!'}, status=status.HTTP_403_FORBIDDEN)
     project.technologies.remove(technology)
     return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
