@@ -80,3 +80,50 @@ def add_user_to_project(request, pk):
     
     project.shared_with.add(user)
     return Response({'detail': 'User added.'}, status=status.HTTP_200_OK)
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def todoCreate(request, project_id):
+    try:
+        project=Project.objects.get(pk=project_id)
+    except Project.DoesNotExist:
+        return Response({'detail':'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+    
+    if not project.owner_or_shared(request.user):
+        return Response({'detail': 'Not allowed.'}, status=status.HTTP_403_FORBIDDEN)
+    
+    if request.method == 'GET':
+        todos = project.todo_items.all()
+        serializer=ToDoItemSerializer(todos, many=True)
+        return Response(serializer.data)
+    elif request.method == 'POST':
+        serializer = ToDoItemSerializer(data=request.data, context={'project': project})
+        if serializer.is_valid():
+            serializer.save(project=project)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET','PATCH', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def todoChange(request, pk):
+    try:
+        todo = ToDoItem.objects.get(pk=pk)
+    except ToDoItem.DoesNotExist:
+        return Response({'detail':'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+    
+    if not todo.project.owner_or_shared(request.user):
+        return Response({'detail': 'Not allowed.'}, status=status.HTTP_403_FORBIDDEN)
+    
+    if request.method == 'GET':
+        serializer = ToDoItemSerializer(todo)
+        return Response(serializer.data)
+
+    if request.method == 'PATCH':
+        serializer = ToDoItemSerializer(todo,data=request.data, partial = True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'DELETE':
+        todo.delete()
+        return Response(status = status.HTTP_204_NO_CONTENT)
