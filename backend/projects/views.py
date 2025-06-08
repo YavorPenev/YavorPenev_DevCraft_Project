@@ -176,3 +176,112 @@ def noteChange(request, pk):
     elif request.method == 'DELETE':
         note.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def technologyGlobalAdd(request):
+    if request.method == 'GET':
+        technologies = Technology.objects.all()
+        serializer = TechnologySerializer(technologies, many=True)
+        return Response(serializer.data)
+    
+    elif request.method == 'POST':
+        serializer = TechnologySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def technologyProjectList(request, project_id):
+    try:
+        project = Project.objects.get(pk=project_id)
+    except Project.DoesNotExist:
+        return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+    
+    technologies = project.technologies.all()
+    serializer = TechnologySerializer(technologies, many=True)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def technologyProjectAdd(request, project_id):
+    try:
+        project = Project.objects.get(pk=project_id)
+    except Project.DoesNotExist:
+        return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+    
+    if project.owner != request.user:
+        return Response({'detail': 'Only the owner can add technologies!'}, status=status.HTTP_403_FORBIDDEN)
+    
+    tech_name = request.data.get('name')
+    if not tech_name:
+        return Response({'detail': 'Technology name is required.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    technology, created = Technology.objects.get_or_create(name=tech_name)
+    project.technologies.add(technology)
+    return Response(TechnologySerializer(technology).data, status=status.HTTP_201_CREATED)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def technologyRemove(request, project_id, tech_id):
+    try:
+        project = Project.objects.get(pk=project_id)
+        technology = Technology.objects.get(pk=tech_id)
+    except (Project.DoesNotExist, Technology.DoesNotExist):
+        return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+    
+    if project.owner != request.user:
+        return Response({'detail': 'Only the owner can delete technologies!!!'}, status=status.HTTP_403_FORBIDDEN)
+    project.technologies.remove(technology)
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def personalDependencyCreate(request, project_id):
+    try:
+        project=Project.objects.get(pk=project_id)
+    except Project.DoesNotExist:
+        return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if project.owner != request.user:
+        return Response({'detail': 'Only the owner can write personal dependencies!'}, status=status.HTTP_403_FORBIDDEN)
+
+    if request.method == 'GET':
+        dependencies = project.personal_dependencies.all()
+        serializer = PersonalDependencySerializer(dependencies, many=True)
+        return Response(serializer.data)
+
+    elif request.method == 'POST':
+        serializer = PersonalDependencySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(project=project)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'PATCH', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def personaldDependencyChange(request, pk):
+    try:
+        dependency = PersonalDependency.objects.get(pk=pk)
+    except PersonalDependency.DoesNotExist:
+        return Response({'detail':'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if dependency.project.owner != request.user:
+        return Response({'detail': 'Only the owner can wrrite personal dependencies!!'}, status=status.HTTP_403_FORBIDDEN)
+
+    if request.method == 'GET':
+        serializer = PersonalDependencySerializer(dependency)
+        return Response(serializer.data)
+
+    elif request.method =='PATCH':
+        serializer = PersonalDependencySerializer(dependency, data=request.data,partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        dependency.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
