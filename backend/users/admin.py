@@ -13,7 +13,7 @@ class UserAdmin(BaseUserAdmin):
     list_display_links = ["email"]
     list_filter = ["email", "first_name", "last_name","is_staff", "is_active"]
     search_fields = ["email", "first_name", "last_name"]
-    fieldsets = (# po kusno da se redaktira
+    fieldsets = (
         (
             _("Login Credentials"), {
                 "fields": ("email", "password",)
@@ -23,18 +23,6 @@ class UserAdmin(BaseUserAdmin):
             _("Personal Information"),
             {
                 "fields": ('first_name', 'last_name',)
-            },
-        ),
-        (
-            _("Permissions and Groups"),
-            {
-                "fields": ("is_active", "is_staff", "is_superuser", "groups", "user_permissions")
-            },
-        ),
-        (
-            _("Important Dates"),
-            {
-                "fields": ("last_login",)# po kusno da se proweri
             },
         ),
     )
