@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Project, Technology, Note, PersonalDependency, ToDoItem
+from .models import Project, Technology, Note, PersonalDependency, ToDoItem, Message
 
 class TechnologySerializer(serializers.ModelSerializer):
     class Meta:
@@ -44,3 +44,17 @@ class ProjectSerializer(serializers.ModelSerializer):
             'todo_items'
         ]
         read_only_fields= ['id', 'owner', 'created_at', 'updated_at']
+class MessageSerializer(serializers.ModelSerializer):
+    sender_name = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Message
+        fields = ['id', 'content', 'sender', 'sender_name', 'created_at']
+        read_only_fields = ['id', 'sender', 'sender_name', 'created_at']
+    
+    def get_sender_name(self, obj):
+        first_name = obj.sender.first_name or ""
+        last_name = obj.sender.last_name or ""
+        if first_name or last_name:
+            return f"{first_name} {last_name}".strip()
+        return obj.sender.username or obj.sender.email

@@ -16,6 +16,8 @@ import PageNotFound from './pages/auth/PageNotFound';
 import ResetPasswordConfirm from './pages/auth/ResetPasswordConfirm';
 import UsefulSources from './pages/useful_sources/UsefulSources';
 import CodeFragments from './pages/code_fragments/codeFragments';
+import Projects from './pages/Projects/Projects';
+import Project from './pages/Projects/Project';
 
 
 createRoot(document.getElementById('root')).render(
@@ -27,6 +29,8 @@ createRoot(document.getElementById('root')).render(
         <Route path="/ideas" element={<Ideas />} />
         <Route path="/useful-sources" element={<UsefulSources />} />
         <Route path="/code-fragments" element={<CodeFragments />} />
+        <Route path="/projects" element={<Projects />} />
+        <Route path="/project/:projectId/" element={<Project />} />
         <Route path="/signup" element={<Register />} />
         <Route path="/activate/:uid/:token" element={<Activate />} />
         <Route path="/login" element={<Login />} />

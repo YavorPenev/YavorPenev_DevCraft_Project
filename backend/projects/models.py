@@ -48,9 +48,15 @@ class ToDoItem(models.Model):
     date = models.DateField()
     task = models.TextField()
     state = models.BooleanField(default=False)
-
     class Meta:
         unique_together = ('project', 'date', 'task')
 
     def __str__(self):
         return f'Task-{self.project.name}:{self.date}: {self.task}'
+class Message(models.Model):
+    project = models.ForeignKey(Project, related_name='messages', on_delete=models.CASCADE)
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        ordering = ['created_at']

@@ -2,8 +2,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
-from .models import Project, ToDoItem, Note, PersonalDependency, Technology
-from .serializers import ProjectSerializer, ToDoItemSerializer, NoteSerializer, PersonalDependencySerializer, TechnologySerializer
+from .models import Project, ToDoItem, Note, PersonalDependency, Technology, Message
+from .serializers import ProjectSerializer, ToDoItemSerializer, NoteSerializer, PersonalDependencySerializer, TechnologySerializer, MessageSerializer
 from django.contrib.auth import get_user_model
 from rest_framework.exceptions import ValidationError
 
@@ -93,7 +93,7 @@ def todoCreate(request, project_id):
     try:
         project=Project.objects.get(pk=project_id)
     except Project.DoesNotExist:
-        #return Response({'detail':'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        #return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
         raise ValidationError({"error":"Project not found!!!"})
     
     if not project.owner_or_shared(request.user):
@@ -262,8 +262,8 @@ def personalDependencyCreate(request, project_id):
         #return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
         raise ValidationError({"error":"Project not found!!!"})
     
-    if project.owner != request.user:
-        return Response({'detail': 'Only the owner can write personal dependencies!'}, status=status.HTTP_403_FORBIDDEN)
+    if not project.owner_or_shared(request.user):
+        return Response({'detail': 'Not allowed!'}, status=status.HTTP_403_FORBIDDEN)
 
     if request.method == 'GET':
         dependencies = project.personal_dependencies.all()
@@ -271,6 +271,9 @@ def personalDependencyCreate(request, project_id):
         return Response(serializer.data)
 
     elif request.method == 'POST':
+        if project.owner != request.user:
+            return Response({'detail': 'Only the owner can write personal dependencies!'}, status=status.HTTP_403_FORBIDDEN)
+            
         serializer = PersonalDependencySerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(project=project)
@@ -304,3 +307,25 @@ def personaldDependencyChange(request, pk):
         dependency.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def groupchat(request, project_id):
+    try:
+        project = Project.objects.get(pk=project_id)
+    except Project.DoesNotExist:
+        raise ValidationError({"error":"Project not found!!!"})
+    
+    if not project.owner_or_shared(request.user):
+        return Response({'detail': 'Not allowed!'}, status=status.HTTP_403_FORBIDDEN)
+    
+    if request.method == 'GET':
+        messages = project.messages.all().order_by('created_at')
+        serializer = MessageSerializer(messages, many=True)
+        return Response(serializer.data)
+    
+    elif request.method == 'POST':
+        serializer = MessageSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(project=project, sender=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
