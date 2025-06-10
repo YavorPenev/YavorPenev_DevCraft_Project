@@ -5,6 +5,8 @@ from rest_framework import status
 from .models import Ideas
 from .serializers import IdeaSerializer
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
+
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
@@ -31,7 +33,8 @@ def idea_change(request, pk):
     try:
         idea = Ideas.objects.get(pk=pk, user=request.user)
     except Ideas.DoesNotExist:
-        return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        #return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        raise ValidationError({"error":"Idea not found!!!"} )
 
     if request.method == 'GET':
         serializer = IdeaSerializer(idea)

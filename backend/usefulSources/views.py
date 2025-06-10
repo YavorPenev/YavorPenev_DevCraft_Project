@@ -33,7 +33,8 @@ def library_change(request, pk):
     try:
         library = Library.objects.get(pk = pk, user = request.user)
     except Library.DoesNotExist:
-        return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        #return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        raise ValidationError({"error": "Library not found!!!"})
 
     if request.method == 'GET':
         serializer = LibrarySerializer(library)
@@ -77,7 +78,8 @@ def sources_change(request, pk):
     try:
         source = Sources.objects.get(pk=pk, library__user=request.user)
     except Sources.DoesNotExist:
-        return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        #return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        raise ValidationError({"error":"Source not found!!!"})
 
     if request.method == 'GET':
         serializer = SourcesSerializer(source)

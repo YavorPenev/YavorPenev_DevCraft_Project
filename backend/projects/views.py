@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from .models import Project, ToDoItem, Note, PersonalDependency, Technology
 from .serializers import ProjectSerializer, ToDoItemSerializer, NoteSerializer, PersonalDependencySerializer, TechnologySerializer
 from django.contrib.auth import get_user_model
+from rest_framework.exceptions import ValidationError
 
 User = get_user_model()
 
@@ -33,7 +34,8 @@ def projectChange(request, pk):
     try:
         project = Project.objects.get(pk=pk)
     except Project.DoesNotExist:
-        return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        #return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        raise ValidationError({"error":"Project not found!!!"})
 
     if not project.owner_or_shared(request.user):
         return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
@@ -68,7 +70,8 @@ def add_user_to_project(request, pk):
     try:
         project = Project.objects.get(pk=pk)
     except Project.DoesNotExist:
-        return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        #return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        raise ValidationError({"error":"Project not found!!!"})
     
     if project.owner != request.user:
         return Response({'detail': 'Only the owner can add users!'}, status=status.HTTP_403_FORBIDDEN)
@@ -77,7 +80,8 @@ def add_user_to_project(request, pk):
     try:
         user = User.objects.get(email=email)
     except User.DoesNotExist:
-        return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+        #return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+        raise ValidationError({"error":"User not found!!"})
     
     project.shared_with.add(user)
     return Response({'detail': 'User added.'}, status=status.HTTP_200_OK)
@@ -89,7 +93,8 @@ def todoCreate(request, project_id):
     try:
         project=Project.objects.get(pk=project_id)
     except Project.DoesNotExist:
-        return Response({'detail':'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        #return Response({'detail':'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        raise ValidationError({"error":"Project not found!!!"})
     
     if not project.owner_or_shared(request.user):
         return Response({'detail': 'Not allowed!'}, status=status.HTTP_403_FORBIDDEN)
@@ -111,7 +116,8 @@ def todoChange(request, pk):
     try:
         todo = ToDoItem.objects.get(pk=pk)
     except ToDoItem.DoesNotExist:
-        return Response({'detail':'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        #return Response({'detail':'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        raise ValidationError({"error":"Todo not found!"})
     
     if not todo.project.owner_or_shared(request.user):
         return Response({'detail': 'Not allowed!'}, status=status.HTTP_403_FORBIDDEN)
@@ -137,8 +143,9 @@ def noteCreate(request, project_id):
     try:
         project = Project.objects.get(pk=project_id)
     except Project.DoesNotExist:
-        return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
-
+        #return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        raise ValidationError({"error":"Project not found!!!"})
+    
     if not project.owner_or_shared(request.user):
         return Response({'detail': 'Not allowed!!'}, status=status.HTTP_403_FORBIDDEN)
 
@@ -160,8 +167,9 @@ def noteChange(request, pk):
     try:
         note = Note.objects.get(pk=pk)
     except Note.DoesNotExist:
-        return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
-
+        #return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        raise ValidationError({"error":"Note not found!"})
+    
     if not note.project.owner_or_shared(request.user):
         return Response({'detail': 'Not allowed!!'}, status=status.HTTP_403_FORBIDDEN)
 
@@ -202,7 +210,8 @@ def technologyProjectList(request, project_id):
     try:
         project = Project.objects.get(pk=project_id)
     except Project.DoesNotExist:
-        return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        #return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        raise ValidationError({"error":"Project not found!!!"})
     
     technologies = project.technologies.all()
     serializer = TechnologySerializer(technologies, many=True)
@@ -214,7 +223,8 @@ def technologyProjectAdd(request, project_id):
     try:
         project = Project.objects.get(pk=project_id)
     except Project.DoesNotExist:
-        return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        #return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        raise ValidationError({"error":"Project not found!!!"})
     
     if project.owner != request.user:
         return Response({'detail': 'Only the owner can add technologies!'}, status=status.HTTP_403_FORBIDDEN)
@@ -234,7 +244,8 @@ def technologyRemove(request, project_id, tech_id):
         project = Project.objects.get(pk=project_id)
         technology = Technology.objects.get(pk=tech_id)
     except (Project.DoesNotExist, Technology.DoesNotExist):
-        return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        #return Response({'detail': 'Project found.'}, status=status.HTTP_404_NOT_FOUND)
+        raise ValidationError({"error":"Project/Technology not found!!!"})
     
     if project.owner != request.user:
         return Response({'detail': 'Only the owner can delete technologies!!!'}, status=status.HTTP_403_FORBIDDEN)
@@ -248,8 +259,9 @@ def personalDependencyCreate(request, project_id):
     try:
         project=Project.objects.get(pk=project_id)
     except Project.DoesNotExist:
-        return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
-
+        #return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        raise ValidationError({"error":"Project not found!!!"})
+    
     if project.owner != request.user:
         return Response({'detail': 'Only the owner can write personal dependencies!'}, status=status.HTTP_403_FORBIDDEN)
 
@@ -271,8 +283,9 @@ def personaldDependencyChange(request, pk):
     try:
         dependency = PersonalDependency.objects.get(pk=pk)
     except PersonalDependency.DoesNotExist:
-        return Response({'detail':'Not found.'}, status=status.HTTP_404_NOT_FOUND)
-
+        #return Response({'detail':'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        raise ValidationError({"error":"Dependecy not found!!!"})
+    
     if dependency.project.owner != request.user:
         return Response({'detail': 'Only the owner can wrrite personal dependencies!!'}, status=status.HTTP_403_FORBIDDEN)
 
@@ -290,3 +303,4 @@ def personaldDependencyChange(request, pk):
     elif request.method == 'DELETE':
         dependency.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    

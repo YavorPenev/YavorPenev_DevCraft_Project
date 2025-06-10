@@ -29,7 +29,7 @@ def codeLibrary_change(request, pk):
     try:
         codeLibrary = CodeLibrary.objects.get(user = request.user, pk = pk)
     except CodeLibrary.DoesNotExist:
-        raise ValidationError ({"error":"Library not found!!!"} )
+        raise ValidationError ({"error":"Code Library not found!!!"} )
     
     if request.method == 'GET':
         serializer = CodeLibrarySerializer(codeLibrary)
@@ -53,7 +53,7 @@ def fragments_create(request, codeLibrary_id):
     try:
         codeLibrary = CodeLibrary.objects.get(pk = codeLibrary_id, user = request.user)
     except CodeLibrary.DoesNotExist:
-        raise ValidationError({"error":"Library not found!!!"} )
+        raise ValidationError({"error":"Code Library not found!!!"} )
 
     if request.method == 'GET':
         search_query = request.GET.get('search','').strip()
