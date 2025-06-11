@@ -7,7 +7,7 @@ const API = "http://127.0.0.1:8000/api/v1";
 
 const Project = () => {
     const { projectId } = useParams();
-    const { user } = useSelector((state) => state.auth);
+    const { user, userInfo } = useSelector((state) => state.auth);
     const navigate = useNavigate();
     
     const [project, setProject] = useState(null);
@@ -47,7 +47,9 @@ const Project = () => {
             const data = await res.json();
             setProject(data);
             setEditedProject(data);
-            setIsOwner(data.owner === user?.id);
+            setIsOwner(
+                (typeof data.owner === 'object' ? data.owner.id : data.owner) == (userInfo?.id || user?.id)
+            );
         } catch (err) {
             alert('Error fetching project');
             navigate('/projects');
@@ -128,7 +130,7 @@ const Project = () => {
             fetchDependencies();
             fetchMessages();
         }
-    }, [user, projectId]);
+    }, [user, userInfo, projectId]);
 
     const handleUpdateProject = async (e) => {
         e.preventDefault();
@@ -150,7 +152,7 @@ const Project = () => {
     };
 
     const handleDeleteProject = async () => {
-        if (window.confirm('Are you sure you want to Delete this project?')) {
+        if (window.confirm('Are you sure you want to delete this project?')) {
             try {
                 const res = await fetch(`${API}/projects/${projectId}/`, {
                     method: 'DELETE',
@@ -341,7 +343,7 @@ const Project = () => {
     };
 
     const handleDeleteDependency = async (dependencyId) => {
-        if (window.confirm('Are you sure you want to delete this dependency?')) {
+        if (window.confirm('Are you sure you want to Delete this dependency?')) {
             try {
                 const res = await fetch(`${API}/personaldependencies/${dependencyId}/`, {
                     method: 'DELETE',
@@ -465,7 +467,6 @@ const Project = () => {
                             {isOwner && (
                                 <div>
                                     <button onClick={() => setEditMode(true)}>Edit Project</button>
-                                    <button onClick={handleDeleteProject}>Delete Project</button>
                                 </div>
                             )}
                         </div>
@@ -709,6 +710,17 @@ const Project = () => {
                         />
                         <button type="submit">Send</button>
                     </form>
+
+                    {isOwner && (
+                        <div className="mt-8 flex justify-center">
+                            <button
+                                className="text-red-700"
+                                onClick={handleDeleteProject}
+                            >
+                                Delete Project
+                            </button>
+                        </div>
+                    )}
                 </div>
             ) : (
                 <div className="text-center  text-red-600">

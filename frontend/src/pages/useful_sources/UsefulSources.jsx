@@ -137,6 +137,18 @@ const UsefulSources = () => {
                         >Clear</button>
                     </form>
 
+                    {/* Форма за създаване на нова библиотека */}
+                    <form className='mb-3' onSubmit={handleAddLibrary}>
+                        <input className='mr-5'
+                            type="text"
+                            placeholder="New library name"
+                            value={libraryName}
+                            onChange={e => setLibraryName(e.target.value)}
+                            required
+                        />
+                        <button type="submit">Create Library</button>
+                    </form>
+
                     <ul>
                         {libraries.map(lib => (
                             <li key={lib.id}>

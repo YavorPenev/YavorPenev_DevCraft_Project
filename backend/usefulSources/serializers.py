@@ -4,7 +4,9 @@ from .models import Library, Sources
 class SourcesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sources
-        fields = '__all__'
+        fields = [
+         'id', 'library', 'type', 'description', 'image', 'url', 'file',
+        'note_title', 'note_description']
         read_only_fields = ['id', 'library']
 
 class LibrarySerializer(serializers.ModelSerializer):

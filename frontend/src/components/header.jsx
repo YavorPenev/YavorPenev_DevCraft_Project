@@ -17,7 +17,7 @@ const Header = () => {
     }
 
     return (
-        <nav className="w-full bg-white shadow">
+        <nav className="w-full bg-gray-900 shadow">
             <ul className="flex 
                            flex-row 
                            items-center 
@@ -25,18 +25,18 @@ const Header = () => {
                            px-4 
                            py-2 
                            md:px-8">
-                <NavLink className="text-lg font-bold" to="/home">Logo</NavLink>
+                <NavLink className="text-lg text-cyan-600 font-bold" to="/home">Logo</NavLink>
                 {user ? (
                     <div className="flex items-center space-x-6">
-                        <NavLink className="text-base" to="/ideas">Ideas</NavLink>
-                        <NavLink className="text-base" to="/useful-sources">Useful Sources </NavLink>
-                        <NavLink className="text-base" to="/code-fragments">Code Fragments </NavLink>
+                        <NavLink className="text-base text-cyan-400 font-bold" to="/ideas">Ideas</NavLink>
+                        <NavLink className="text-base text-cyan-400 font-bold" to="/useful-sources">Useful Sources </NavLink>
+                        <NavLink className="text-base text-cyan-400 font-bold" to="/code-fragments">Code Fragments </NavLink>
 
-                        <NavLink to="/home" onClick={handleLogout} className="text-base">Logout</NavLink>
+                        <NavLink to="/home" onClick={handleLogout} className="text-base text-cyan-400 font-bold">Logout</NavLink>
 
                         <div className="relative group">
 
-                            <button className="flex items-center space-x-2 focus:outline-none">
+                            <button className="flex items-center space-x-2 focus:outline-none text-cyan-400 font-bold">
                                 Profile
                             </button>
 
@@ -68,8 +68,8 @@ const Header = () => {
                     <div className="flex 
                                     items-center 
                                     space-x-6">
-                        <NavLink className="text-base" to="/login">Log In</NavLink>
-                        <NavLink className="text-base" to="/signup">Sign Up</NavLink>
+                        <NavLink className="text-base text-cyan-400 font-bold" to="/login">Log In</NavLink>
+                        <NavLink className="text-base text-cyan-400 font-bold" to="/signup">Sign Up</NavLink>
                     </div>
                 )}
             </ul>

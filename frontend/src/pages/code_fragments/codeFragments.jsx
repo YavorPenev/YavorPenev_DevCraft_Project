@@ -72,6 +72,21 @@ const CodeFragments = () => {
         fetchFragments(lib.id);
     };
 
+    const handleDeleteLibrary = async (lib) => {
+    if (window.confirm("Are you sure you want to Delete this library?")) {
+        try {
+            await fetch(`${API}/codeLibraries/${lib.id}/`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${user?.access}` }
+            });
+            setSelectedLibrary(selectedLibrary?.id === lib.id ? null : selectedLibrary);
+            fetchLibraries();
+        } catch (err) {
+            alert(err.message);
+        }
+    }
+};
+
     const handleAddFragment = async (e) => {
         e.preventDefault();
         try {
@@ -183,6 +198,7 @@ const CodeFragments = () => {
                                             setEditingLibraryId(lib.id);
                                             setEditingLanguage(lib.language);
                                         }}>Edit</button>
+                                        <button onClick={() => handleDeleteLibrary(lib)}>Delete</button>
                                     </>
                                 )}
                             </li>

@@ -3,7 +3,7 @@ from django.conf import settings
 
 class CodeLibrary(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="code_library")
-    language = models.CharField(blank=False, max_length=100)
+    language = models.CharField(blank=False, max_length=70)
 
     class Meta:
         constraints = [
@@ -15,7 +15,7 @@ class CodeLibrary(models.Model):
 
 class CodeFragment(models.Model):
     codeLibrary = models.ForeignKey(CodeLibrary, on_delete=models.CASCADE, related_name="code_fragments")
-    title = models.CharField( blank=False, max_length=250)
+    title = models.CharField( blank=False, max_length=150)
     code = models.TextField(blank=False)
     description = models.TextField(blank=True, max_length=3000)
     date =models.DateTimeField(auto_now_add=True)
