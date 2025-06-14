@@ -18,6 +18,7 @@ import UsefulSources from './pages/useful_sources/UsefulSources';
 import CodeFragments from './pages/code_fragments/codeFragments';
 import Projects from './pages/Projects/Projects';
 import Project from './pages/Projects/Project';
+import LibraryDetails from './pages/useful_sources/LibraryDetails';
 
 
 createRoot(document.getElementById('root')).render(
@@ -28,6 +29,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/home" element={<Home />} />
         <Route path="/ideas" element={<Ideas />} />
         <Route path="/useful-sources" element={<UsefulSources />} />
+        <Route path="/useful-sources/:libraryId" element={<LibraryDetails />} />
         <Route path="/code-fragments" element={<CodeFragments />} />
         <Route path="/projects" element={<Projects />} />
         <Route path="/project/:projectId/" element={<Project />} />

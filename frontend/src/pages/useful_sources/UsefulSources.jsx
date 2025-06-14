@@ -1,110 +1,107 @@
 import React, { useEffect, useState } from 'react'
 import Header from '../../components/header'
 import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router'
 
 const API = "http://127.0.0.1:8000/api/v1"
 
 const UsefulSources = () => {
     const { user } = useSelector((state) => state.auth)
+    const navigate = useNavigate()
     const [libraries, setLibraries] = useState([])
-    const [libraryName, setLibraryName] = useState('')
-    const [selectedLibrary, setSelectedLibrary] = useState(null)
-    const [sources, setSources] = useState([])
-    const [sourceForm, setSourceForm] = useState({ type: 'link', description: '', url: '', image: null, file: null, note_title: '', note_description: '' })
     const [search, setSearch] = useState('')
-    const [editingLibraryId, setEditingLibraryId] = useState(null)
-    const [editingLibraryName, setEditingLibraryName] = useState('')
-    const [editingSourceId, setEditingSourceId] = useState(null)
-    const [editingSourceData, setEditingSourceData] = useState({})
-
+    const [showAddLibraryPopup, setShowAddLibraryPopup] = useState(false)
+    const [popupLibraryName, setPopupLibraryName] = useState('')
+    const [editingLibrary, setEditingLibrary] = useState(null)
+    const [editLibraryName, setEditLibraryName] = useState('')
+    const [showEditLibraryPopup, setShowEditLibraryPopup] = useState(false)
 
     const fetchLibraries = async (searchValue = '') => {
-        const res = await fetch(`${API}/libraries/?search=${encodeURIComponent(searchValue)}`, {
-            headers: { Authorization: `Bearer ${user?.access}` }
-        })
-        const data = await res.json()
-        setLibraries(data)
+        try {
+            const res = await fetch(`${API}/libraries/?search=${encodeURIComponent(searchValue)}`, {
+                headers: { Authorization: `Bearer ${user?.access}` }
+            })
+            if (!res.ok) throw new Error('Failed to fetch libraries!')
+            const data = await res.json()
+            setLibraries(data)
+        } catch (err) {
+            alert('Error fetching libraries!!!')
+        }
     }
-
-    const fetchSources = async (libraryId) => {
-        const res = await fetch(`${API}/libraries/${libraryId}/sources/`, {
-            headers: { Authorization: `Bearer ${user?.access}` }
-        })
-        const data = await res.json()
-        setSources(data)
-    }
-
 
     useEffect(() => {
         if (user) fetchLibraries()
     }, [user])
 
-    const handleAddLibrary = async (e) => {
-        e.preventDefault()
-        await fetch(`${API}/libraries/`, {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${user?.access}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ name: libraryName })
-        })
-        setLibraryName('')
-        fetchLibraries()
+    const handleSearch = (e) => {
+        setSearch(e.target.value)
+        fetchLibraries(e.target.value)
     }
 
-
     const handleDeleteLibrary = async (lib) => {
-        if (window.confirm("Are you sure you want to delete this library?")) {
-            await fetch(`${API}/libraries/${lib.id}/`, {
+        try {
+            const res = await fetch(`${API}/libraries/${lib.id}/`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${user?.access}` }
             })
-            setSelectedLibrary(null)
+            if (!res.ok) throw new Error('Failed to delete library!')
             fetchLibraries()
-            setSources([])
+        } catch (err) {
+            alert('Error deleting library!!')
         }
     }
 
 
     const handleSelectLibrary = (lib) => {
-        setSelectedLibrary(lib)
-        fetchSources(lib.id)
+        console.log("Navigating to library:", lib.id);
+        navigate(`/useful-sources/${lib.id}`)
     }
 
-
-    const handleAddSource = async (e) => {
+    const handlePopupAddLibrary = async (e) => {
         e.preventDefault()
-        const formData = new FormData()
-        formData.append('type', sourceForm.type)
-        if (sourceForm.type !== 'note') {
-            formData.append('description', sourceForm.description)
+        try {
+            const res = await fetch(`${API}/libraries/`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${user?.access}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name: popupLibraryName })
+            })
+            if (!res.ok) throw new Error('Failed to create library!')
+            setPopupLibraryName('')
+            setShowAddLibraryPopup(false)
+            fetchLibraries()
+        } catch (err) {
+            alert('Error creating library')
         }
-        if (sourceForm.type === 'link') formData.append('url', sourceForm.url)
-        if (sourceForm.type === 'image' && sourceForm.image) formData.append('image', sourceForm.image)
-        if (sourceForm.type === 'file' && sourceForm.file) formData.append('file', sourceForm.file)
-        if (sourceForm.type === 'note') {
-            formData.append('note_title', sourceForm.note_title || '')
-            formData.append('note_description', sourceForm.note_description || '')
-        }
-
-        await fetch(`${API}/libraries/${selectedLibrary.id}/sources/`, {
-            method: 'POST',
-            headers: { Authorization: `Bearer ${user?.access}` },
-            body: formData
-        })
-        setSourceForm({ type: 'link', description: '', url: '', image: null, file: null, note_title: '', note_description: '' })
-        fetchSources(selectedLibrary.id)
     }
 
+    const handleEditLibrary = (e, lib) => {
+        e.stopPropagation();
+        setEditingLibrary(lib);
+        setEditLibraryName(lib.name);
+        setShowEditLibraryPopup(true);
+    }
 
-    const handleDeleteSource = async (src) => {
-        if (window.confirm("Are you sure you want to delete this source?")) {
-            await fetch(`${API}/sources/${src.id}/`, {
-                method: 'DELETE',
-                headers: { Authorization: `Bearer ${user?.access}` }
-            })
-            fetchSources(selectedLibrary.id)
+    const handleUpdateLibrary = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await fetch(`${API}/libraries/${editingLibrary.id}/`, {
+                method: 'PATCH',
+                headers: {
+                    Authorization: `Bearer ${user?.access}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name: editLibraryName })
+            });
+            if (!res.ok) throw new Error('Failed to update library!')
+            setShowEditLibraryPopup(false);
+            setEditingLibrary(null);
+            setEditLibraryName('');
+            fetchLibraries();
+        } catch (err) {
+            alert('Error updating library')
         }
     }
 
@@ -112,286 +109,154 @@ const UsefulSources = () => {
         <>
             <Header />
             {user ? (
-                <div>
-                    <h2>Libraries</h2>
-
-                    <form className='mb-3'
-                        onSubmit={e => {
-                            e.preventDefault()
-                            fetchLibraries(search)
-                        }}
-                    >
-                        <input className='mr-5'
+                <div className='min-h-screen bg-gray-700 '>
+                    <div className='flex flex-row items-center'>
+                        <h1 className='m-7 font-bold text-emerald-400 text-2xl '>Welcome to your personal Libraries. You can search here:</h1>
+                        <input
+                            className="bg-gray-800 h-10 text-gray-200 pl-4 pr-10 py-2 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-all"
                             type="text"
-                            placeholder="Search libraries..."
+                            placeholder="Search by title..."
                             value={search}
-                            onChange={e => setSearch(e.target.value)}
+                            onChange={handleSearch}
                         />
-                        <button type="submit">Search</button>
-                        <button className='ml-2'
-                            type="button"
-                            onClick={() => {
-                                setSearch('')
-                                fetchLibraries('')
-                            }}
-                        >Clear</button>
-                    </form>
+                    </div>
 
-                    {/* Форма за създаване на нова библиотека */}
-                    <form className='mb-3' onSubmit={handleAddLibrary}>
-                        <input className='mr-5'
-                            type="text"
-                            placeholder="New library name"
-                            value={libraryName}
-                            onChange={e => setLibraryName(e.target.value)}
-                            required
-                        />
-                        <button type="submit">Create Library</button>
-                    </form>
-
-                    <ul>
+                    <ul className='flex flex-row flex-wrap justify-start mx-8 gap-6'>
                         {libraries.map(lib => (
-                            <li key={lib.id}>
-                                {editingLibraryId === lib.id ? (
-                                    <>
-                                        <input
-                                            type="text"
-                                            value={editingLibraryName}
-                                            onChange={e => setEditingLibraryName(e.target.value)}
+                            <li key={lib.id} className="mb-6">
+                                <div className='relative font-extrabold border-black border-3 text-center pr-4 pl-4 bg-gray-500 rounded-lg hover:bg-gray-400 transition'>
+                                    <div
+                                        className="cursor-pointer"
+                                        onClick={() => handleSelectLibrary(lib)}
+                                    >
+                                        <img
+                                            src='../../../libraries.png'
+                                            className='w-35 h-40'
+                                            alt={lib.name}
+                                            onError={(e) => {
+                                                console.log("Image failed to load");
+                                                e.target.src = 'https://via.placeholder.com/150?text=Library';
+                                            }}
                                         />
-                                        <button
-                                            onClick={async () => {
-                                                await fetch(`${API}/libraries/${lib.id}/`, {
-                                                    method: 'PATCH',
-                                                    headers: {
-                                                        Authorization: `Bearer ${user?.access}`,
-                                                        'Content-Type': 'application/json'
-                                                    },
-                                                    body: JSON.stringify({ name: editingLibraryName })
-                                                })
-                                                setEditingLibraryId(null)
-                                                fetchLibraries()
-                                            }}
-                                        >Save</button>
-                                        <button onClick={() => setEditingLibraryId(null)}>Cancel</button>
-                                    </>
-                                ) : (
-                                    <>
-                                        <button onClick={() => handleSelectLibrary(lib)}>{lib.name}</button>
-                                        <button className='ml-2'
-                                            onClick={() => {
-                                                setEditingLibraryId(lib.id)
-                                                setEditingLibraryName(lib.name)
-                                            }}
-
-                                        >Edit</button>
-                                        <button
-                                            onClick={() => handleDeleteLibrary(lib)}
-                                        >Delete</button>
-                                    </>
-                                )}
+                                        <h3 className='text-cyan-50'>{lib.name}</h3>
+                                    </div>
+                                    <button
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            handleEditLibrary(e, lib);
+                                        }}
+                                        className="absolute bottom-2 right-2 bg-gray-600 hover:bg-gray-500 rounded-full p-1 transition"
+                                        aria-label="Edit library"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </li>
                         ))}
+                        <li key="add-library-btn" className="flex items-center mb-6">
+                            <button
+                                onClick={() => setShowAddLibraryPopup(true)}
+                                className="w-40 h-44 flex items-center justify-center border-4 border-dashed border-emerald-400 bg-gray-600 rounded-lg text-6xl text-emerald-400 hover:bg-gray-500 transition"
+                                style={{ fontWeight: 'bold', fontSize: '4rem' }}
+                                aria-label="Add new library"
+                            >
+                                +
+                            </button>
+                        </li>
                     </ul>
 
-                    {selectedLibrary && (
-                        <div>
-                            <div>------------------------------------------------</div>
-                            <h3>Sources in {selectedLibrary.name}</h3>
-                            <form onSubmit={handleAddSource}>
-                                <select
-                                    value={sourceForm.type}
-                                    onChange={e => setSourceForm({ ...sourceForm, type: e.target.value })}
-                                >
-                                    <option value="link">Link</option>
-                                    <option value="image">Image</option>
-                                    <option value="file">File</option>
-                                    <option value="note">Note</option>
-                                </select>
-                                {sourceForm.type !== 'note' && (
+                    {showAddLibraryPopup && (
+                        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                            <div className="bg-white rounded-lg p-8 shadow-lg w-96 flex flex-col items-center">
+                                <h2 className="text-2xl font-bold mb-4 text-gray-800">Create New Library</h2>
+                                <form className="w-full" onSubmit={handlePopupAddLibrary}>
                                     <input
+                                        className="w-full border border-gray-300 rounded px-3 py-2 mb-6 focus:outline-none focus:ring-2 focus:ring-emerald-400"
                                         type="text"
-                                        placeholder="Description"
-                                        value={sourceForm.description}
-                                        onChange={e => setSourceForm({ ...sourceForm, description: e.target.value })}
+                                        placeholder="Library name"
+                                        value={popupLibraryName}
+                                        onChange={e => setPopupLibraryName(e.target.value)}
                                         required
+                                        autoFocus
                                     />
-                                )}
-                                {sourceForm.type === 'link' && (
-                                    <input
-                                        type="url"
-                                        placeholder="URL"
-                                        value={sourceForm.url}
-                                        onChange={e => setSourceForm({ ...sourceForm, url: e.target.value })}
-                                        required
-                                    />
-                                )}
-                                {sourceForm.type === 'image' && (
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={e => setSourceForm({ ...sourceForm, image: e.target.files[0] })}
-                                        required
-                                    />
-                                )}
-                                {sourceForm.type === 'file' && (
-                                    <input
-                                        type="file"
-                                        onChange={e => setSourceForm({ ...sourceForm, file: e.target.files[0] })}
-                                        required
-                                    />
-                                )}
-                                {sourceForm.type === 'note' && (
-                                    <>
-                                        <input
-                                            type="text"
-                                            placeholder="Note title"
-                                            value={sourceForm.note_title || ''}
-                                            onChange={e => setSourceForm({ ...sourceForm, note_title: e.target.value })}
-                                            required
-                                        />
-                                        <textarea
-                                            placeholder="Note description"
-                                            value={sourceForm.note_description || ''}
-                                            onChange={e => setSourceForm({ ...sourceForm, note_description: e.target.value })}
-                                            required
-                                        />
-                                    </>
-                                )}
-                                <button type="submit">Add</button>
-                            </form>
-
-                            <ul>
-                                {sources.map(src => (
-                                    <li key={src.id}>
-                                        {editingSourceId === src.id ? (
-                                            <form
-                                                onSubmit={async e => {
-                                                    e.preventDefault()
-                                                    const formData = new FormData()
-                                                    formData.append('type', editingSourceData.type)
-                                                    if (editingSourceData.type !== 'note') {
-                                                        formData.append('description', editingSourceData.description)
-                                                    }
-                                                    if (editingSourceData.type === 'link') formData.append('url', editingSourceData.url)
-                                                    if (editingSourceData.type === 'image' && editingSourceData.image instanceof File) {
-                                                        formData.append('image', editingSourceData.image)
-                                                    }
-                                                    if (editingSourceData.type === 'file' && editingSourceData.file instanceof File) {
-                                                        formData.append('file', editingSourceData.file)
-                                                    }
-                                                    if (editingSourceData.type === 'note') {
-                                                        formData.append('note_title', editingSourceData.note_title || '')
-                                                        formData.append('note_description', editingSourceData.note_description || '')
-                                                    }
-                                                    await fetch(`${API}/sources/${src.id}/`, {
-                                                        method: 'PATCH',
-                                                        headers: { Authorization: `Bearer ${user?.access}` },
-                                                        body: formData
-                                                    })
-                                                    setEditingSourceId(null)
-                                                    fetchSources(selectedLibrary.id)
-                                                }}
-                                            >
-                                                <select
-                                                    value={editingSourceData.type}
-                                                    onChange={e => setEditingSourceData({ ...editingSourceData, type: e.target.value })}
-                                                >
-                                                    <option value="link">Link</option>
-                                                    <option value="image">Image</option>
-                                                    <option value="file">File</option>
-                                                    <option value="note">Note</option>
-                                                </select>
-                                                {editingSourceData.type !== 'note' && (
-                                                    <input
-                                                        type="text"
-                                                        placeholder="Description"
-                                                        value={editingSourceData.description || ''}
-                                                        onChange={e => setEditingSourceData({ ...editingSourceData, description: e.target.value })}
-                                                        required
-                                                    />
-                                                )}
-                                                {editingSourceData.type === 'link' && (
-                                                    <input
-                                                        type="url"
-                                                        placeholder="URL"
-                                                        value={editingSourceData.url || ''}
-                                                        onChange={e => setEditingSourceData({ ...editingSourceData, url: e.target.value })}
-                                                        required
-                                                    />
-                                                )}
-                                                {editingSourceData.type === 'image' && (
-                                                    <input
-                                                        type="file"
-                                                        accept="image/*"
-                                                        onChange={e => setEditingSourceData({ ...editingSourceData, image: e.target.files[0] })}
-                                                    />
-                                                )}
-                                                {editingSourceData.type === 'file' && (
-                                                    <input
-                                                        type="file"
-                                                        onChange={e => setEditingSourceData({ ...editingSourceData, file: e.target.files[0] })}
-                                                    />
-                                                )}
-                                                {editingSourceData.type === 'note' && (
-                                                    <>
-                                                        <input
-                                                            type="text"
-                                                            placeholder="Note title"
-                                                            value={editingSourceData.note_title || ''}
-                                                            onChange={e => setEditingSourceData({ ...editingSourceData, note_title: e.target.value })}
-                                                            required
-                                                        />
-                                                        <textarea
-                                                            placeholder="Note description"
-                                                            value={editingSourceData.note_description || ''}
-                                                            onChange={e => setEditingSourceData({ ...editingSourceData, note_description: e.target.value })}
-                                                            required
-                                                        />
-                                                    </>
-                                                )}
-                                                <button type="submit">Save</button>
-                                                <button type="button" onClick={() => setEditingSourceId(null)}>Cancel</button>
-                                            </form>
-
-                                        ) : (
-                                            <>
-
-                                                <div>------------------------------------------------</div>
-                                                <div>Type: {src.type}</div>
-                                                {src.type === 'note' ? (
-                                                    <div>
-                                                        <strong>{src.note_title}</strong>
-                                                        <div>{src.note_description}</div>
-                                                    </div>
-                                                ) : (
-                                                    <div>Description: {src.description}</div>
-                                                )}
-                                                {src.url && <div>URL: <a href={src.url}>{src.url}</a></div>}
-                                                {src.image && (
-                                                    <div>
-                                                        Image: <img src={`http://127.0.0.1:8000${src.image}`} />
-                                                    </div>
-                                                )}
-                                                {src.file && <div>File:<a href={`http://127.0.0.1:8000${src.file}`}>Download</a></div>}
-                                                <button className='ml-1'
-                                                    onClick={() => {
-                                                        setEditingSourceId(src.id)
-                                                        setEditingSourceData(src)
-                                                    }}
-
-                                                >Edit</button>
-                                                <button
-                                                    onClick={() => handleDeleteSource(src)}
-
-                                                >Delete</button>
-                                            </>
-                                        )}
-                                    </li>
-                                ))}
-                            </ul>
+                                    <div className="flex justify-end gap-4">
+                                        <button
+                                            type="button"
+                                            className="px-4 py-2 rounded bg-gray-300 text-gray-700 hover:bg-gray-400"
+                                            onClick={() => {
+                                                setShowAddLibraryPopup(false)
+                                                setPopupLibraryName('')
+                                            }}
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            className="px-4 py-2 rounded bg-emerald-500 text-white hover:bg-emerald-600"
+                                        >
+                                            Save
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     )}
+
+                    {showEditLibraryPopup && editingLibrary && (
+                        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                            <div className="bg-gray-600 rounded-lg border-cyan-400 border-2 p-8 shadow-lg w-96 flex flex-col items-center">
+                                <h2 className="text-2xl font-bold mb-4 text-cyan-500">Edit Library</h2>
+                                <form className="w-full" onSubmit={handleUpdateLibrary}>
+                                    <input
+                                        className="w-full border border-gray-200 rounded px-3 py-2 mb-6 text-white focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                                        type="text"
+                                        placeholder="Library name"
+                                        value={editLibraryName}
+                                        onChange={e => setEditLibraryName(e.target.value)}
+                                        required
+                                        autoFocus
+                                    />
+                                    <div className="flex justify-between w-full">
+                                        <button
+                                            type="button"
+                                            className="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600"
+                                            onClick={() => {
+                                                if (window.confirm("Are you sure you want to delete this library?")) {
+                                                    handleDeleteLibrary(editingLibrary);
+                                                    setShowEditLibraryPopup(false);
+                                                    setEditingLibrary(null);
+                                                }
+                                            }}
+                                        >
+                                            Delete
+                                        </button>
+                                        <div className="flex gap-4">
+                                            <button
+                                                type="button"
+                                                className="px-4 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-400"
+                                                onClick={() => {
+                                                    setShowEditLibraryPopup(false);
+                                                    setEditingLibrary(null);
+                                                }}
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                className="px-4 py-2 rounded bg-emerald-500 text-white hover:bg-emerald-600"
+                                            >
+                                                Save
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+
                 </div>
 
             ) : (
