@@ -97,23 +97,23 @@ const LibraryDetails = () => {
             <Header />
             {user ? (
                 <div className='min-h-screen bg-gray-700 p-6'>
-                    <div className='mb-6 flex flex-row'>
-                        <button
-                            onClick={() => navigate('/useful-sources')}
-                            className='bg-cyan-500 text-white px-4 py-2 rounded-lg flex flex-row items-center hover:bg-cyan-600 transition'
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                                <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-                            </svg>
-                            Back to Libraries
-                        </button>
-                        {library && <h1 className='text-3xl font-bold text-cyan-400 ml-100'>{library.name}</h1>}
+                    <div className='mb-6 relative flex items-center justify-center'>
+                        <div className='absolute left-0'>
+                            <button
+                                onClick={() => navigate('/useful-sources')}
+                                className='bg-cyan-500 text-white px-4 py-2 rounded-lg flex flex-row items-center hover:bg-cyan-600 transition'
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                                </svg>
+                                Back to Libraries
+                            </button>
+                        </div>
+                        {library && <h1 className='text-3xl font-bold text-cyan-400 text-center'>{library.name}</h1>}
                     </div>
 
                     {library && (
                         <>
-
-
                             <div className='bg-gray-800 rounded-lg p-6 mb-8'>
                                 <h2 className='text-2xl font-bold text-emerald-400 mb-4'>Add New Source</h2>
                                 <form onSubmit={handleAddSource} className='space-y-4'>

@@ -39,13 +39,21 @@ const Activate = () => {
 
 
     return (
-        <div>
-            <div >
-                <h1>Activate Account</h1>
+        <div className="min-h-screen bg-gradient-to-br from-blue-600 to-indigo-800 flex justify-center items-center p-4">
+            <div className="w-full max-w-md bg-white rounded-xl shadow-2xl overflow-hidden">
+                <div className="px-8 py-6">
+                    <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">Activate your Account</h1>
 
-                {isLoading && <Loading />}
+                    {isLoading && <Loading />}
 
-                <button type="submit" onClick={handleSubmit}>Activate Account</button>
+                    <button
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow transition-colors"
+                        type="submit"
+                        onClick={handleSubmit}
+                    >
+                        Activate Account
+                    </button>
+                </div>
             </div>
         </div>
     )

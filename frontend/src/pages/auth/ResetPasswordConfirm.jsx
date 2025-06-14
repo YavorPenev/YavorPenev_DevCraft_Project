@@ -54,31 +54,51 @@ const ResetPasswordConfirm = () => {
     }, [isError, isSuccess, message, navigate, dispatch])
 
     return (
-        <>
-            <div >
-                <h1 >Reset Password here</h1>
+        <div className="min-h-screen bg-gradient-to-br from-blue-600 to-indigo-800 flex justify-center items-center p-4">
+            <div className="w-full max-w-md bg-white rounded-xl shadow-2xl overflow-hidden">
+                <div className="px-8 py-6">
+                    <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">Reset Password</h1>
 
-                {isLoading && <Loading />}
+                    {isLoading && <Loading />}
 
-                <form >
-                    <input type="password"
-                        placeholder="New password"
-                        name="new_password"
-                        onChange={handleChange}
-                        value={new_password}
-                        required
-                    />
-                    <input type="password"
-                        placeholder="Confirm new password"
-                        name="re_new_password"
-                        onChange={handleChange}
-                        value={re_new_password}
-                        required
-                    />
-                    <button type="submit" onClick={handleSubmit}>Reset Password</button>
-                </form>
+                    <form className="space-y-5">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                            <input
+                                type="password"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                placeholder="Enter new password"
+                                name="new_password"
+                                onChange={handleChange}
+                                value={new_password}
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+                            <input
+                                type="password"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                placeholder="Confirm new password"
+                                name="re_new_password"
+                                onChange={handleChange}
+                                value={re_new_password}
+                                required
+                            />
+                        </div>
+
+                        <button
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow transition-colors"
+                            type="submit"
+                            onClick={handleSubmit}
+                        >
+                            Reset Password
+                        </button>
+                    </form>
+                </div>
             </div>
-        </>
+        </div>
     )
 }
 

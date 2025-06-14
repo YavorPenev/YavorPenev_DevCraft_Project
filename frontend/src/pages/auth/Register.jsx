@@ -30,7 +30,7 @@ const Register = () => {
         )
     }
 
-    
+
     const handleSubmit = (e) => {
         e.preventDefault()
 
@@ -62,51 +62,91 @@ const Register = () => {
     }, [user, isError, isSuccess, navigate, dispatch])
 
     return (
-      <>
-        <form >
-            {isLoading && <Loading/>}
+        <div className="min-h-screen bg-gradient-to-br from-blue-600 to-indigo-800 flex justify-center items-center p-4">
+            <div className="w-full max-w-md bg-white rounded-xl shadow-2xl overflow-hidden">
+                <div className="px-6 py-4">
+                    <h1 className="text-2xl font-bold text-center text-gray-800 mb-4">Create your account</h1>
 
-                    <input type="text"
-                        placeholder="First Name"
-                        name="first_name"
-                        onChange={handleChange}
-                        value={first_name}
-                        required
-                    />
-                    <input type="text"
-                        placeholder="Last Name"
-                        name="last_name"
-                        onChange={handleChange}
-                        value={last_name}
-                        required
-                    />
-                    <input type="email"
-                        placeholder="Email"
-                        name="email"
-                        onChange={handleChange}
-                        value={email}
-                        required
-                    />
-                    <input type="password"
-                        placeholder="Password"
-                        name="password"
-                        onChange={handleChange}
-                        value={password}
-                        required
-                    />
-                    <input type="password"
-                        placeholder="Retype Password"
-                        name="re_password"
-                        onChange={handleChange}
-                        value={re_password}
-                        required
-                    />
+                    <form className="space-y-3">
+                        <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-0.5">First Name</label>
+                            <input
+                                type="text"
+                                className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                placeholder="Enter your first name"
+                                name="first_name"
+                                onChange={handleChange}
+                                value={first_name}
+                                required
+                            />
+                        </div>
 
-                    <button type="submit" onClick={handleSubmit}>Sign Up</button>
-                </form>
-      </>
+                        <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-0.5">Last Name</label>
+                            <input
+                                type="text"
+                                className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                placeholder="Enter your last name"
+                                name="last_name"
+                                onChange={handleChange}
+                                value={last_name}
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-0.5">Email</label>
+                            <input
+                                type="email"
+                                className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                placeholder="Enter your email"
+                                name="email"
+                                onChange={handleChange}
+                                value={email}
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-0.5">Password</label>
+                            <input
+                                type="password"
+                                className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                placeholder="Enter your password"
+                                name="password"
+                                onChange={handleChange}
+                                value={password}
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-0.5">Confirm Password</label>
+                            <input
+                                type="password"
+                                className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                placeholder="Retype your password"
+                                name="re_password"
+                                onChange={handleChange}
+                                value={re_password}
+                                required
+                            />
+                        </div>
+
+                        <button
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-1.5 px-4 rounded-lg shadow transition-colors mt-2"
+                            type="submit"
+                            onClick={handleSubmit}
+                        >
+                            Sign Up
+                        </button>
+                    </form>
+
+                    {isLoading && <Loading />}
+                </div>
+            </div>
+        </div>
     )
-  }
-  
-  export default Register
-  
+}
+
+export default Register
