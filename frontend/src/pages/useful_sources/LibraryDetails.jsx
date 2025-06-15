@@ -399,7 +399,8 @@ const LibraryDetails = () => {
                                                         {src.type === 'note' ? (
                                                             <div className='mt-3'>
                                                                 <h4 className='text-xl text-white font-bold'>{src.note_title}</h4>
-                                                                <p className='text-gray-300 mt-1 text-lg'>{src.note_description}</p>
+                                                                <span className="text-gray-100 break-words max-w-275 block">{src.note_description}</span>
+
                                                             </div>
                                                         ) : (
                                                             <>
@@ -440,7 +441,8 @@ const LibraryDetails = () => {
 
                                                                 <div className='text-gray-300 mt-4  pt-2'>
                                                                     <p className='text-2xl font-bold'>Description:</p>
-                                                                    <p className='text-lg '>{src.description}</p>
+                                                                    <span className="text-gray-100 break-words max-w-275 block">{src.description}</span>
+
                                                                 </div>
                                                             </>
                                                         )}

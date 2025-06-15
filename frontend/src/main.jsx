@@ -19,6 +19,7 @@ import CodeFragments from './pages/code_fragments/codeFragments';
 import Projects from './pages/Projects/Projects';
 import Project from './pages/Projects/Project';
 import LibraryDetails from './pages/useful_sources/LibraryDetails';
+import LearnMore from './pages/lernmore';
 
 
 createRoot(document.getElementById('root')).render(
@@ -27,6 +28,7 @@ createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <Routes>
         <Route path="/home" element={<Home />} />
+        <Route path="/learn-more" element={<LearnMore />} />
         <Route path="/ideas" element={<Ideas />} />
         <Route path="/useful-sources" element={<UsefulSources />} />
         <Route path="/useful-sources/:libraryId" element={<LibraryDetails />} />
