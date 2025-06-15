@@ -1,47 +1,35 @@
-
 import React, { useEffect, useState } from 'react';
 import Header from '../../components/header';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router';
 
 const API = "http://127.0.0.1:8000/api/v1";
 
 const CodeFragments = () => {
     const { user } = useSelector((state) => state.auth);
-    const [codeLibraries, setCodeLibraries] = useState([]);
-    const [libraryName, setLibraryName] = useState('');
-    const [selectedLibrary, setSelectedLibrary] = useState(null);
-    const [fragments, setFragments] = useState([]);
-    const [fragmentForm, setFragmentForm] = useState({ title: '', code: '', description: '' });
+    const navigate = useNavigate();
+    const [libraries, setLibraries] = useState([]);
     const [search, setSearch] = useState('');
-    const [editingFragmentId, setEditingFragmentId] = useState(null);
+    const [showAddLibraryPopup, setShowAddLibraryPopup] = useState(false);
+    const [libraryForm, setLibraryForm] = useState({ language: '' });
     const [editingLibraryId, setEditingLibraryId] = useState(null);
-    const [editingLanguage, setEditingLanguage] = useState('');
-    const [editingFragmentData, setEditingFragmentData] = useState({
-        title: '', code: '', description: ''
-    });
-    const fetchLibraries = async () => {
+    const [editingLibraryData, setEditingLibraryData] = useState({ language: '' });
+    const [showEditLibraryPopup, setShowEditLibraryPopup] = useState(false);
+
+    const fetchLibraries = async (searchValue = '') => {
         try {
             const res = await fetch(`${API}/codeLibraries/`, {
                 headers: { Authorization: `Bearer ${user?.access}` }
             });
-            if (!res.ok) throw new Error('Failed to fetch libraries');
+            if (!res.ok) throw new Error('Failed to fetch code libraries!');
             const data = await res.json();
-            setCodeLibraries(data);
+            setLibraries(
+                searchValue
+                    ? data.filter(lib => lib.language.toLowerCase().includes(searchValue.toLowerCase()))
+                    : data
+            );
         } catch (err) {
-            alert('Error fetching libraries');
-        }
-    };
-
-    const fetchFragments = async (libraryId, searchValue = '') => {
-        try {
-            const res = await fetch(`${API}/codeLibraries/${libraryId}/fragments/?search=${encodeURIComponent(searchValue)}`, {
-                headers: { Authorization: `Bearer ${user?.access}` }
-            });
-            if (!res.ok) throw new Error('Failed to fetch fragments');
-            const data = await res.json();
-            setFragments(data);
-        } catch (err) {
-            alert('Error fetching fragments');
+            alert('Error fetching code libraries!');
         }
     };
 
@@ -49,266 +37,231 @@ const CodeFragments = () => {
         if (user) fetchLibraries();
     }, [user]);
 
+    const handleSearch = (e) => {
+        setSearch(e.target.value);
+        fetchLibraries(e.target.value);
+    };
+
     const handleAddLibrary = async (e) => {
         e.preventDefault();
         try {
-            await fetch(`${API}/codeLibraries/`, {
+            const res = await fetch(`${API}/codeLibraries/`, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${user?.access}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ language: libraryName })
+                body: JSON.stringify(libraryForm)
             });
-            setLibraryName('');
+            if (!res.ok) throw new Error('Failed to create library!');
+            setLibraryForm({ language: '' });
+            setShowAddLibraryPopup(false);
             fetchLibraries();
         } catch (err) {
-            alert(err.message);
+            alert('Error creating library');
         }
     };
 
-    const handleSelectLibrary = (lib) => {
-        setSelectedLibrary(lib);
-        fetchFragments(lib.id);
-    };
-
-    const handleDeleteLibrary = async (lib) => {
-    if (window.confirm("Are you sure you want to Delete this library?")) {
-        try {
-            await fetch(`${API}/codeLibraries/${lib.id}/`, {
-                method: 'DELETE',
-                headers: { Authorization: `Bearer ${user?.access}` }
-            });
-            setSelectedLibrary(selectedLibrary?.id === lib.id ? null : selectedLibrary);
-            fetchLibraries();
-        } catch (err) {
-            alert(err.message);
-        }
-    }
-};
-
-    const handleAddFragment = async (e) => {
-        e.preventDefault();
-        try {
-            await fetch(`${API}/codeLibraries/${selectedLibrary.id}/fragments/`, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${user?.access}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(fragmentForm)
-            });
-            setFragmentForm({ title: '', code: '', description: '' });
-            fetchFragments(selectedLibrary.id);
-        } catch (err) {
-            alert(err.message);
-        }
-    };
-
-    const handleDeleteFragment = async (frag) => {
-        if (window.confirm("Are you sure you want to delete this fragment?")) {
-            try {
-                await fetch(`${API}/fragments/${frag.id}/`, {
-                    method: 'DELETE',
-                    headers: { Authorization: `Bearer ${user?.access}` }
-                });
-                fetchFragments(selectedLibrary.id);
-            } catch (err) {
-                alert(err.message);
-            }
-        }
+    const handleEditLibrary = (e, lib) => {
+        e.stopPropagation();
+        setEditingLibraryId(lib.id);
+        setEditingLibraryData({ language: lib.language });
+        setShowEditLibraryPopup(true);
     };
 
     const handleUpdateLibrary = async (e) => {
         e.preventDefault();
         try {
-            await fetch(`${API}/codeLibraries/${editingLibraryId}/`, {
+            const res = await fetch(`${API}/codeLibraries/${editingLibraryId}/`, {
                 method: 'PATCH',
                 headers: {
                     Authorization: `Bearer ${user?.access}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ language: editingLanguage })
+                body: JSON.stringify(editingLibraryData)
             });
+            if (!res.ok) throw new Error('Failed to update library!');
+            setShowEditLibraryPopup(false);
             setEditingLibraryId(null);
+            setEditingLibraryData({ language: '' });
             fetchLibraries();
-            if (selectedLibrary?.id === editingLibraryId) {
-                setSelectedLibrary({ ...selectedLibrary, language: editingLanguage });
-            }
         } catch (err) {
-            alert(err.message);
+            alert('Error updating library');
         }
     };
 
-    const handleUpdateFragment = async (e) => {
-        e.preventDefault();
-        try {
-            await fetch(`${API}/fragments/${editingFragmentId}/`, {
-                method: 'PATCH',
-                headers: {
-                    Authorization: `Bearer ${user?.access}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(editingFragmentData)
-            });
-            setEditingFragmentId(null);
-            fetchFragments(selectedLibrary.id);
-        } catch (err) {
-            alert(err.message);
+    const handleDeleteLibrary = async (lib) => {
+        if (window.confirm("Are you sure you want to delete this library?")) {
+            try {
+                const res = await fetch(`${API}/codeLibraries/${lib.id}/`, {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${user?.access}` }
+                });
+                if (!res.ok) throw new Error('Failed to delete library!');
+                fetchLibraries();
+                setShowEditLibraryPopup(false);
+            } catch (err) {
+                alert('Error deleting library!');
+            }
         }
+    };
+
+    const handleSelectLibrary = (lib) => {
+        navigate(`/code-fragments/${lib.id}`);
     };
 
     return (
         <>
             <Header />
             {user ? (
-                <div>
-                    <h2>Code Libraries</h2>
-                    <form onSubmit={handleAddLibrary}>
-                        <input
-                            type="text"
-                            placeholder="Language"
-                            value={libraryName}
-                            onChange={e => setLibraryName(e.target.value)}
-                            required
-                        />
-                        <button type="submit">Add Library</button>
-                    </form>
+                <div className='min-h-screen bg-gray-700'>
+                    <div className='flex flex-row items-center'>
+                        <h1 className='m-7 font-bold text-blue-400 text-2xl'>Your Code Libraries. Search by language:</h1>
+                        <div className='flex-row flex relative'>
+                            <input
+                                className="bg-gray-800 h-10 text-gray-200 pl-4 pr-10 py-2 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all w-64"
+                                type="text"
+                                placeholder="Search by language..."
+                                value={search}
+                                onChange={handleSearch}
+                            />
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 absolute right-3 top-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                    </div>
 
-                    <ul>
-                        {codeLibraries.map(lib => (
-                            <li key={lib.id}>
-                                {editingLibraryId === lib.id ? (
-                                    <form onSubmit={handleUpdateLibrary}>
-                                        <input
-                                            value={editingLanguage}
-                                            onChange={e => setEditingLanguage(e.target.value)}
+                    <ul className='flex flex-row flex-wrap justify-start mx-8 gap-6'>
+                        {libraries.map(lib => (
+                            <li key={lib.id} className="mb-6">
+                                <div className='relative font-extrabold border-black border-3 text-center pr-4 pl-4 bg-gray-500 rounded-lg hover:bg-gray-400 transition'>
+                                    <div
+                                        className="cursor-pointer"
+                                        onClick={() => handleSelectLibrary(lib)}
+                                    >
+                                        <img
+                                            src='../../../public/codelibrary.png'
+                                            className='w-39 h-40 pt-2'
+                                            alt={lib.language}
                                         />
-                                        <button type="submit">Save</button>
-                                        <button onClick={() => setEditingLibraryId(null)}>Cancel</button>
-                                    </form>
-                                    
-                                ) : (
-
-                                    <>
-                                        <button onClick={() => handleSelectLibrary(lib)}>
-                                            {lib.language}
-                                        </button>
-                                        <button onClick={() => {
-                                            setEditingLibraryId(lib.id);
-                                            setEditingLanguage(lib.language);
-                                        }}>Edit</button>
-                                        <button onClick={() => handleDeleteLibrary(lib)}>Delete</button>
-                                    </>
-                                )}
+                                        <h3 className='text-cyan-50'>{lib.language}</h3>
+                                    </div>
+                                    <button
+                                        onClick={(e) => handleEditLibrary(e, lib)}
+                                        className="absolute bottom-2 right-2 bg-gray-600 hover:bg-gray-500 rounded-full p-1 transition"
+                                        aria-label="Edit library"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </li>
                         ))}
+                        <li key="add-library-btn" className="flex items-center mb-6">
+                            <button
+                                onClick={() => setShowAddLibraryPopup(true)}
+                                className="w-40 h-44 flex items-center justify-center border-4 border-dashed border-blue-400 bg-gray-600 rounded-lg text-6xl text-blue-400 hover:bg-gray-500 transition"
+                                style={{ fontWeight: 'bold', fontSize: '4rem' }}
+                                aria-label="Add new library"
+                            >
+                                +
+                            </button>
+                        </li>
                     </ul>
 
-                    {selectedLibrary && (
-                        <div>
-                            <h3>
-                                Fragments in {selectedLibrary.language}
-                                <button onClick={() => {
-                                    setEditingLibraryId(selectedLibrary.id);
-                                    setEditingLanguage(selectedLibrary.language);
-                                }}>Edit</button>
-                            </h3>
+                    {showAddLibraryPopup && (
+                        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                            <div className="bg-white rounded-lg p-8 shadow-lg w-96 flex flex-col items-center">
+                                <h2 className="text-2xl font-bold mb-4 text-gray-800">Create New Code Library</h2>
+                                <form className="w-full" onSubmit={handleAddLibrary}>
+                                    <input
+                                        className="w-full border border-gray-300 rounded px-3 py-2 mb-6 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                        type="text"
+                                        placeholder="Programming language"
+                                        value={libraryForm.language}
+                                        onChange={e => setLibraryForm({ ...libraryForm, language: e.target.value })}
+                                        required
+                                        autoFocus
+                                    />
+                                    <div className="flex justify-end gap-4">
+                                        <button
+                                            type="button"
+                                            className="px-4 py-2 rounded bg-gray-300 text-gray-700 hover:bg-gray-400"
+                                            onClick={() => {
+                                                setShowAddLibraryPopup(false)
+                                                setLibraryForm({ language: '' })
+                                            }}
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600"
+                                        >
+                                            Save
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
 
-                            <input
-                                type="text"
-                                placeholder="Search fragments..."
-                                value={search}
-                                onChange={(e) => {
-                                    setSearch(e.target.value);
-                                    fetchFragments(selectedLibrary.id, e.target.value);
-                                }}
-                            />
-
-                            <form onSubmit={handleAddFragment}>
-                                <input
-                                    type="text"
-                                    placeholder="Title"
-                                    value={fragmentForm.title}
-                                    onChange={e => setFragmentForm({ ...fragmentForm, title: e.target.value })}
-                                    required
-                                />
-                                <textarea
-                                    placeholder="Code"
-                                    value={fragmentForm.code}
-                                    onChange={e => setFragmentForm({ ...fragmentForm, code: e.target.value })}
-                                    rows="10"
-                                    required
-                                />
-                                <textarea
-                                    placeholder="Description"
-                                    value={fragmentForm.description}
-                                    onChange={e => setFragmentForm({ ...fragmentForm, description: e.target.value })}
-                                    rows="3"
-                                />
-                                <button type="submit">Add Fragment</button>
-                            </form>
-                            <ul>
-
-                                {fragments.map(frag => (
-                                    <li key={frag.id}>
-                                        {editingFragmentId === frag.id ? (
-                                            <form onSubmit={handleUpdateFragment}>
-                                                <input
-                                                    value={editingFragmentData.title}
-                                                    onChange={e => setEditingFragmentData({
-                                                        ...editingFragmentData,
-                                                        title: e.target.value
-                                                    })}
-                                                />
-                                                <textarea
-                                                    value={editingFragmentData.code}
-                                                    onChange={e => setEditingFragmentData({
-                                                        ...editingFragmentData,
-                                                        code: e.target.value
-                                                    })}
-                                                    rows="10"
-                                                />
-                                                <textarea
-                                                    value={editingFragmentData.description}
-                                                    onChange={e => setEditingFragmentData({
-                                                        ...editingFragmentData,
-                                                        description: e.target.value
-                                                    })}
-                                                    rows="3"
-                                                />
-                                                <button type="submit">Save</button>
-                                                <button onClick={() => setEditingFragmentId(null)}>Cancel</button>
-                                            </form>
-
-                                        ) : (
-
-                                            <>
-                                
-                                                    <h4><b>{frag.title}</b></h4>
-                                                <pre>{frag.code}</pre>
-                                                {frag.description && <p>{frag.description}</p>}
-                                                <div>   
-                                                    <button onClick={() => handleDeleteFragment(frag)}>Delete</button>
-                                                    <button onClick={() => {
-                                                        setEditingFragmentId(frag.id);
-                                                        setEditingFragmentData(frag);
-                                                    }}>Edit</button>
-                                                    </div>
-                                               
-                                                <div>-------------------------------</div>
-                                            </>
-
-                                        )}
-                                    </li>
-                                ))}
-                            </ul>
+                    {showEditLibraryPopup && editingLibraryId && (
+                        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                            <div className="bg-gray-600 rounded-lg border-blue-400 border-2 p-8 shadow-lg w-96 flex flex-col items-center">
+                                <h2 className="text-2xl font-bold mb-4 text-blue-400">Edit Code Library</h2>
+                                <form className="w-full" onSubmit={handleUpdateLibrary}>
+                                    <input
+                                        className="w-full border border-gray-200 rounded px-3 py-2 mb-6 text-white bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                        type="text"
+                                        placeholder="Programming language"
+                                        value={editingLibraryData.language}
+                                        onChange={e => setEditingLibraryData({ ...editingLibraryData, language: e.target.value })}
+                                        required
+                                        autoFocus
+                                    />
+                                    <div className="flex justify-between w-full">
+                                        <button
+                                            type="button"
+                                            className="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600"
+                                            onClick={() => {
+                                                const lib = libraries.find(l => l.id === editingLibraryId);
+                                                if (lib && window.confirm("Are you sure you want to Delete this library?")) {
+                                                    handleDeleteLibrary(lib);
+                                                    setShowEditLibraryPopup(false);
+                                                    setEditingLibraryId(null);
+                                                }
+                                            }}
+                                        >
+                                            Delete
+                                        </button>
+                                        <div className="flex gap-4">
+                                            <button
+                                                type="button"
+                                                className="px-4 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-400"
+                                                onClick={() => {
+                                                    setShowEditLibraryPopup(false);
+                                                    setEditingLibraryId(null);
+                                                }}
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600"
+                                            >
+                                                Save
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     )}
                 </div>
             ) : (
-
-                <div className="text-center  text-red-600">
+                <div className="text-center text-red-600">
                     You must be logged in to view your code fragments!!!
                 </div>
             )}

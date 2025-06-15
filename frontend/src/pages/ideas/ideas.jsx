@@ -127,10 +127,10 @@ const Ideas = () => {
             {user ? (
                 <div className="min-h-screen bg-gray-700 p-6">
                     <div className='flex flex-row p-6 gap-5 flex-wrap'>
-                        <h1 className="text-2xl font-bold mb-4 text-amber-400">Welcome to your personal Ideas. You can search here:</h1>
+                        <h1 className="text-2xl font-bold mb-4 text-amber-500">Welcome to your personal Ideas. You can search here:</h1>
                         <div className='flex-row flex relative'>
                             <input
-                                className="bg-gray-800 h-10 text-gray-200 pl-4 pr-10 py-2 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all w-64"
+                                className="bg-gray-800 h-10 text-gray-200 pl-4 pr-10 py-2 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all w-64"
                                 type="text"
                                 placeholder="Search by title..."
                                 value={search}
@@ -144,7 +144,7 @@ const Ideas = () => {
                     </div>
 
                     <form onSubmit={handleAddIdea} className="mb-6 bg-gray-800 p-6 rounded-lg shadow-md">
-                        <h2 className="text-2xl font-semibold mb-4 text-amber-400">Add New Idea</h2>
+                        <h2 className="text-2xl font-semibold mb-4 text-amber-500">Add New Idea</h2>
                         <div className="flex flex-col gap-4">
                             <input
                                 type="text"
@@ -152,14 +152,14 @@ const Ideas = () => {
                                 value={newIdea.title}
                                 onChange={e => setNewIdea({ ...newIdea, title: e.target.value })}
                                 required
-                                className="bg-gray-800 text-gray-200 pl-4 py-2 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all"
+                                className="bg-gray-800 text-gray-200 pl-4 py-2 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all"
                             />
                             <textarea
                                 placeholder="Description"
                                 value={newIdea.description}
                                 onChange={e => setNewIdea({ ...newIdea, description: e.target.value })}
                                 required
-                                className="bg-gray-800 whitespace-pre-wrap text-gray-200 pl-4 py-2 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all min-h-[100px]"
+                                className="bg-gray-800 whitespace-pre-wrap text-gray-200 pl-4 py-2 rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all min-h-[100px]"
                             />
                             <button
                                 type="submit"
@@ -179,7 +179,7 @@ const Ideas = () => {
                                     {editId !== idea.id ? (
                                         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
                                             <div className="text-gray-200 sm:pr-4">
-                                                <h3 className="text-2xl font-semibold text-amber-400 break-words">{idea.title}</h3>
+                                                <h3 className="text-2xl font-semibold text-amber-500 break-words">{idea.title}</h3>
 
                                                 <span className="text-gray-100 break-words max-w-275 block">{idea.description}</span>
                                                 <div className="text-xs text-gray-400">{new Date(idea.date).toLocaleString()}</div>
