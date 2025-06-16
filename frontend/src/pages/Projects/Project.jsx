@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../../components/header';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import Loading from '../../components/Loading';
 
 const API = "http://127.0.0.1:8000/api/v1";
 
@@ -436,6 +437,9 @@ const Project = () => {
         <>
             <Header />
             {user ? (
+                !project ? (
+                    <Loading />
+                ) : (
                 <div className="min-h-screen bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 px-4 py-8">
 
                     {/* //////////////////////////underheader section////////////////////////////////////////// */}
@@ -897,6 +901,7 @@ const Project = () => {
                     </section>
 
                 </div>
+                )
             ) : (
                 <div className="text-center text-red-600">
                     You must be logged in to view this project!!!
