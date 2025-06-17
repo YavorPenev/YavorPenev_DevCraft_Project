@@ -43,6 +43,10 @@ const Project = () => {
 
     const [newUserEmail, setNewUserEmail] = useState('');
 
+    const isSharedProject = (project) => {
+        return project.shared_with && project.shared_with.length > 0;
+    };
+
     //////////////////////////fetch//////////////////////////////////////////
 
     const fetchProject = async () => {
@@ -433,6 +437,7 @@ const Project = () => {
         }
     };
 
+
     return (
         <>
             <Header />
@@ -622,9 +627,9 @@ const Project = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-10">
 
                         {/* //////////////////////////chat section////////////////////////////////////////// */}
-
+                       
+                        {isSharedProject(project) && (
                         <section className="bg-gray-900 rounded-2xl shadow-xl p-6 border-2 border-blue-400 flex flex-col max-h-[32rem] h-[32rem]">
-                           
                             <h3 className="text-xl font-bold text-blue-300 mb-4">Group Chat</h3>
                             <div
                                 className="flex-1 max-h-[20rem] overflow-y-auto mb-4 flex flex-col gap-2 pr-2 scroll-smooth"
@@ -639,7 +644,6 @@ const Project = () => {
                                     </div>
                                 ))}
                             </div>
-
                             <form onSubmit={handleSendMessage} className="flex gap-2">
                                 <textarea
                                     className="flex-1 rounded px-3 py-2 bg-gray-800 text-white border border-gray-600 resize-none"
@@ -651,11 +655,11 @@ const Project = () => {
                                 />
                                 <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Send</button>
                             </form>
-                            
                         </section>
+                        )}
 
                         {/* //////////////////////////to-does section////////////////////////////////////////// */}
-
+                      
                         <section className="bg-gray-900 rounded-2xl shadow-xl p-6 border-2 border-emerald-400 flex flex-col max-h-[32rem] h-[32rem]">
                             <h3 className="text-xl font-bold text-emerald-300 mb-2">To-Do List</h3>
                             <form onSubmit={handleAddTodo} className="flex flex-col gap-2 mb-4">

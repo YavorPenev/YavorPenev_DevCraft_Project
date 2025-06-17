@@ -91,18 +91,15 @@ const CodeFragments = () => {
     };
 
     const handleDeleteLibrary = async (lib) => {
-        if (window.confirm("Are you sure you want to delete this library?")) {
-            try {
-                const res = await fetch(`${API}/codeLibraries/${lib.id}/`, {
-                    method: 'DELETE',
-                    headers: { Authorization: `Bearer ${user?.access}` }
-                });
-                if (!res.ok) throw new Error('Failed to delete library!');
-                fetchLibraries();
-                setShowEditLibraryPopup(false);
-            } catch (err) {
-                alert('Error deleting library!');
-            }
+        try {
+            const res = await fetch(`${API}/codeLibraries/${lib.id}/`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${user?.access}` }
+            });
+            if (!res.ok) throw new Error('Failed to delete library!');
+            fetchLibraries();
+        } catch (err) {
+            alert('Error deleting library!');
         }
     };
 
